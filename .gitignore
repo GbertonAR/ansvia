@@ -1,0 +1,115 @@
+# Python Specific
+
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.python-version
+env/
+venv/
+.venv/
+*/venv/
+*/.venv/
+.env
+local_settings.py
+instance/
+*.egg-info
+[Bb]uild/
+dist/
+develop-eggs/
+docs/_build/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.manifest
+*.spec
+# OS
+.DS_Store
+Thumbs.db
+# IDEs and Editors
+.idea/
+.vscode/
+*.swp
+*~
+# Packages
+*.egg
+*.whl
+# Logs
+*.log
+# Temp files
+tmp/
+tmp.*
+temp/
+temp.*
+# Flask stuff
+instance/
+# Django stuff
+*.sqlite3
+*.sqlite
+# General
+# Bytecode or intermediary files:
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/wheels/
+*.egg-info/
+.installed.cfg
+*.stamp
+*.whl
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# PyInstaller
+#  Often these are written to the same directory as the `.spec` file
+_MEIPASS*
+# Spyder
+.spyderproject
+.spyproj
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Code Coverage
+.coverage
+coverage/
+*.lcov
+
+# Translations
+*.mo
+*.pot
+
+# OS X
+.DS_Store
+
+# Virtualenv
+/lib/
+/bin/
+/include/
+/share/man
+/share/info
+.Python*
+node_modules
