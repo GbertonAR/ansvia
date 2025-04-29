@@ -1,35 +1,51 @@
 <template>
-  <div class="app-container">
-    <header class="app-header">
-      <h1 class="app-title">Análisis de Documentación</h1>
-    </header>
-    <main class="app-main">
-      <div class="file-upload-area">
+  <div class="min-h-screen bg-blue-800 text-white font-[Montserrat] flex">
+    <!-- Menú lateral -->
+    <aside class="w-64 bg-blue-900 p-6 shadow-lg flex flex-col">
+      <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
+        📁 Documentos
+      </h2>
+      <div class="space-y-3">
         <button
           v-for="n in 7"
           :key="n"
-          class="upload-button"
+          class="w-full py-2 px-4 bg-blue-600 hover:bg-blue-500 rounded-lg transition text-sm"
           @click="seleccionarArchivo(n - 1)"
         >
-          Archivo PDF {{ n }}
+          Subir PDF {{ n }}
         </button>
       </div>
-      <div v-if="archivosSeleccionados.length > 0" class="preview-carousel">
-        <div v-for="(archivo, index) in archivosSeleccionados" :key="index" class="file-preview">
-          <p>{{ archivo.name }}</p>
-        </div>
+    </aside>
+
+    <!-- Contenido principal -->
+    <main class="flex-1 p-10">
+      <h1 class="text-3xl font-bold mb-2">Análisis de Documentación</h1>
+      <p class="mb-6 text-blue-200">Selecciona archivos PDF desde la columna izquierda.</p>
+
+      <div v-if="archivosSeleccionados.length > 0" class="mb-8">
+        <h2 class="text-lg font-semibold mb-2">Archivos seleccionados:</h2>
+        <ul class="list-disc pl-5 space-y-1 text-blue-100 text-sm">
+          <li v-for="(archivo, index) in archivosSeleccionados" :key="index">
+            {{ archivo.name }}
+          </li>
+        </ul>
+      </div>
+
+      <div class="bg-blue-700 p-6 rounded-lg shadow-md max-w-2xl">
         <QuestionForm @enviar-consulta="enviarAnalisis" />
       </div>
-      <div v-else class="placeholder-area">
-        Seleccione archivos PDF utilizando los botones de la derecha.
-      </div>
-      <div v-if="respuestaBackend" class="results-display">
-        <h2>Resultado del Análisis</h2>
-        <div v-for="(resultado, index) in respuestaBackend" :key="index" class="resultado-item">
-          <p><strong>Respuesta:</strong> {{ resultado.respuesta }}</p>
+
+      <div v-if="respuestaBackend" class="mt-10 bg-blue-700 p-6 rounded-lg">
+        <h2 class="text-2xl font-semibold mb-4">📄 Resultados</h2>
+        <div
+          v-for="(resultado, index) in respuestaBackend"
+          :key="index"
+          class="mb-4 border-b border-blue-400 pb-2"
+        >
           <p><strong>Archivo:</strong> {{ resultado.archivo }}</p>
           <p><strong>Página:</strong> {{ resultado.pagina }}</p>
           <p><strong>Párrafo:</strong> {{ resultado.parrafo }}</p>
+          <p><strong>Respuesta:</strong> {{ resultado.respuesta }}</p>
         </div>
       </div>
     </main>
@@ -37,82 +53,42 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import QuestionForm from './components/QuestionForm.vue';
-import axios from 'axios'; // Necesitamos Axios para las peticiones HTTP
+import { ref } from 'vue'
+import QuestionForm from './components/QuestionForm.vue'
+import axios from 'axios'
 
-const archivosSeleccionados = ref<(File | undefined)[]>([]);
-const archivosCargados = ref(false);
-const respuestaBackend = ref<any>(null);
-const backendUrl = 'http://localhost:5000/analizar'; // Reemplaza con la URL de tu backend
+const archivosSeleccionados = ref<(File | undefined)[]>([])
+const respuestaBackend = ref<any>(null)
+const backendUrl = 'http://localhost:5000/analizar'
 
 const seleccionarArchivo = (index: number) => {
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = 'application/pdf';
-  input.multiple = false; // Permitir seleccionar un archivo por botón
+  const input = document.createElement('input')
+  input.type = 'file'
+  input.accept = 'application/pdf'
   input.onchange = (event: Event) => {
-    const files = (event.target as HTMLInputElement).files;
-    if (files && files.length > 0) {
-      // Asociar el archivo al botón correspondiente (podría ser más complejo si se permite reordenar)
-      if (!archivosSeleccionados.value[index]) {
-        archivosSeleccionados.value[index] = files[0];
-        // Verificar si todos los botones tienen un archivo (opcional)
-        archivosCargados.value = archivosSeleccionados.value.some(file => file !== undefined);
-      } else {
-        archivosSeleccionados.value[index] = files[0]; // Reemplazar si se selecciona otro archivo
-      }
-    }
-  };
-  input.click();
-};
+    const files = (event.target as HTMLInputElement).files
+    if (files?.length) archivosSeleccionados.value[index] = files[0]
+  }
+  input.click()
+}
 
 const enviarAnalisis = async (pregunta: string) => {
-  if (archivosSeleccionados.value.length > 0 && pregunta.trim() !== '') {
-    const formData = new FormData();
-    archivosSeleccionados.value.forEach((archivo: File | undefined) => {
-      if (archivo) {
-        formData.append('archivos', archivo);
-      }
-    });
-    formData.append('pregunta', pregunta);
+  const formData = new FormData()
+  archivosSeleccionados.value.forEach((archivo) => {
+    if (archivo) formData.append('archivos', archivo)
+  })
+  formData.append('pregunta', pregunta)
 
-    try {
-      const response = await axios.post(backendUrl, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      respuestaBackend.value = response.data;
-      console.log('Respuesta del backend:', response.data);
-    } catch (error: any) {
-      console.error('Error al enviar los archivos y la pregunta:', error.message);
-      alert('Error al procesar la solicitud. Por favor, inténtelo de nuevo.');
-    }
-  } else {
-    alert('Por favor, cargue al menos un archivo PDF e ingrese su pregunta.');
+  try {
+    const res = await axios.post(backendUrl, formData)
+    respuestaBackend.value = res.data
+  } catch (err: any) {
+    console.error('Error al analizar:', err.message)
   }
-};
-
-// Removed unused irAAnalisis function
+}
 </script>
 
 <style scoped>
-/* ... estilos anteriores ... */
-
-.results-display {
-  margin-top: 2em;
-  padding: 1em;
-  background-color: rgba(255, 255, 255, 0.1);
-  border-radius: 5px;
-  width: 80%;
-  max-width: 800px;
-  color: white;
-}
-
-.resultado-item {
-  margin-bottom: 1em;
-  padding: 0.5em;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-}
+/* Fondo Montserrat global si no está ya configurado */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
 </style>
