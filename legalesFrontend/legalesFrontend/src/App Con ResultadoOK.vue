@@ -82,17 +82,7 @@ const enviarAnalisis = async (pregunta: string) => {
   try {
     const res = await axios.post(backendUrl, formData)
     console.log('Respuesta del backend:', res.data)
-
     respuestaBackend.value = res.data
-    console.log('Tipo de respuestaBackend:', typeof respuestaBackend.value)
-    console.log('Contenido:', JSON.stringify(respuestaBackend.value, null, 2))
-    if (Array.isArray(res.data)) {
-      respuestaBackend.value = res.data[0] ?? {}
-    } else if (typeof res.data === 'object' && res.data !== null) {
-      respuestaBackend.value = res.data
-    } else {
-      respuestaBackend.value = { answer: 'Respuesta en formato desconocido.' }
-    }
   } catch (err: any) {
     console.error('Error al analizar:', err.message)
   }
@@ -117,11 +107,7 @@ const resaltarPalabrasClave = (texto: string): string => {
     .map(([palabra]) => palabra)
 
   const regex = new RegExp(`\\b(${topPalabras.join('|')})\\b`, 'gi')
-  // return texto.replace(regex, '<span class="text-yellow-400 font-semibold">$1</span>')
-  return texto.replace(
-      regex,
-      '<span class="bg-yellow-300 text-black font-bold px-1 rounded">$1</span>'
-  )
+  return texto.replace(regex, '<span class="text-yellow-400 font-semibold">$1</span>')
 }
 </script>
 

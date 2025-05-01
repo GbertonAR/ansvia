@@ -2,7 +2,9 @@
   <div class="min-h-screen bg-blue-800 text-white font-[Montserrat] flex">
     <!-- Menú lateral -->
     <aside class="w-64 bg-blue-900 p-6 shadow-lg flex flex-col">
-      <h2 class="text-xl font-bold mb-6 flex items-center gap-2">📁 Documentos</h2>
+      <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
+        📁 Documentos
+      </h2>
       <div class="space-y-3">
         <button
           v-for="n in 7"
@@ -24,7 +26,7 @@
         <h2 class="text-lg font-semibold mb-2">Archivos seleccionados:</h2>
         <ul class="list-disc pl-5 space-y-1 text-blue-100 text-sm">
           <li v-for="(archivo, index) in archivosSeleccionados" :key="index">
-            {{ archivo?.name }}
+            {{ archivo.name }}
           </li>
         </ul>
       </div>
@@ -34,17 +36,16 @@
       </div>
 
       <div v-if="respuestaBackend" class="mt-10 bg-blue-700 p-6 rounded-lg">
-        <div class="flex justify-between items-center mb-2">
-          <h2 class="text-2xl font-semibold">📄 Resultado</h2>
-          <button @click="mostrarResultado = !mostrarResultado" class="text-sm bg-blue-600 hover:bg-blue-500 px-3 py-1 rounded">
-            {{ mostrarResultado ? 'Ocultar' : 'Mostrar' }}
-          </button>
-        </div>
-        <div v-if="mostrarResultado" class="max-h-96 overflow-y-auto bg-blue-800 p-4 rounded mt-2">
-          <p class="text-blue-100 text-sm mb-2">
-            <strong>Archivo:</strong> {{ archivosSeleccionados[0]?.name || 'Sin nombre' }}
-          </p>
-          <div v-html="resaltarPalabrasClave(respuestaBackend.answer)" class="text-white space-y-2"></div>
+        <h2 class="text-2xl font-semibold mb-4">📄 Resultados</h2>
+        <div
+          v-for="(resultado, index) in respuestaBackend"
+          :key="index"
+          class="mb-4 border-b border-blue-400 pb-2"
+        >
+          <p><strong>Archivo:</strong> {{ resultado.archivo }}</p>
+          <p><strong>Página:</strong> {{ resultado.pagina }}</p>
+          <p><strong>Párrafo:</strong> {{ resultado.parrafo }}</p>
+          <p><strong>Respuesta:</strong> {{ resultado.respuesta }}</p>
         </div>
       </div>
     </main>
@@ -58,7 +59,6 @@ import axios from 'axios'
 
 const archivosSeleccionados = ref<(File | undefined)[]>([])
 const respuestaBackend = ref<any>(null)
-const mostrarResultado = ref(true)
 const backendUrl = 'http://localhost:5000/ask'
 
 const seleccionarArchivo = (index: number) => {
@@ -81,50 +81,16 @@ const enviarAnalisis = async (pregunta: string) => {
 
   try {
     const res = await axios.post(backendUrl, formData)
-    console.log('Respuesta del backend:', res.data)
-
+    console.log('Respuesta del backend:', res.data);  // Añade esto para ver qué está devolviendo el backend
     respuestaBackend.value = res.data
-    console.log('Tipo de respuestaBackend:', typeof respuestaBackend.value)
-    console.log('Contenido:', JSON.stringify(respuestaBackend.value, null, 2))
-    if (Array.isArray(res.data)) {
-      respuestaBackend.value = res.data[0] ?? {}
-    } else if (typeof res.data === 'object' && res.data !== null) {
-      respuestaBackend.value = res.data
-    } else {
-      respuestaBackend.value = { answer: 'Respuesta en formato desconocido.' }
-    }
   } catch (err: any) {
     console.error('Error al analizar:', err.message)
   }
 }
-
-const resaltarPalabrasClave = (texto: string): string => {
-  const palabras = texto
-    .toLowerCase()
-    .replace(/[.,;()¿?¡!"“”]/g, '')
-    .split(/\s+/)
-
-  const frecuencia: Record<string, number> = {}
-  for (const palabra of palabras) {
-    if (palabra.length > 5) {
-      frecuencia[palabra] = (frecuencia[palabra] || 0) + 1
-    }
-  }
-
-  const topPalabras = Object.entries(frecuencia)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 5)
-    .map(([palabra]) => palabra)
-
-  const regex = new RegExp(`\\b(${topPalabras.join('|')})\\b`, 'gi')
-  // return texto.replace(regex, '<span class="text-yellow-400 font-semibold">$1</span>')
-  return texto.replace(
-      regex,
-      '<span class="bg-yellow-300 text-black font-bold px-1 rounded">$1</span>'
-  )
-}
 </script>
 
 <style scoped>
+
+/* Fondo Montserrat global si no está ya configurado */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
 </style>
