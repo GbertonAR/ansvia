@@ -1,0 +1,11 @@
+.titulo-azul-centrado {
+    color: blue;
+    text-align: center;
+    font-family:Arial, Helvetica, sans-serif;
+    
+}
+.tarjeta-titulo {
+    border: solid;
+    border-radius: 5%;
+    background-color: blue;
+}

@@ -1,0 +1,19 @@
+# Entorno virtual
+venv/
+.env
+
+# Archivos del sistema
+__pycache__/
+*.pyc
+
+# Archivos temporales
+*.log
+*.tmp
+
+# Archivos de IDEs
+.vscode/
+.idea/
+
+# Archivos generados
+*.sqlite3
+instance/

@@ -6,13 +6,24 @@
     <main class="app-main">
       <div class="file-upload-area">
         <button
+          v-for="(item, n) in archivosSeleccionados"
+          :key="n"
+          :class="[
+              'w-full py-2 px-4 rounded-lg transition text-sm',
+              item.cargado ? 'bg-green-600 hover:bg-green-500' : 'bg-blue-600 hover:bg-blue-500'
+          ]"
+              @click="seleccionarArchivo(n)"
+          >
+              {{ item.cargado ? 'PDF Cargado ✔️' : `Subir PDF ${n + 1}` }}
+        </button>
+        <!-- <button
           v-for="n in 7"
           :key="n"
           class="upload-button"
           @click="seleccionarArchivo(n - 1)"
         >
           Archivo PDF {{ n }}
-        </button>
+        </button> -->
       </div>
       <div v-if="archivosSeleccionados.length > 0" class="preview-carousel">
         <div v-for="(archivo, index) in archivosSeleccionados" :key="index" class="file-preview">
@@ -41,27 +52,48 @@ import { ref } from 'vue';
 import QuestionForm from './components/QuestionForm.vue';
 import axios from 'axios'; // Necesitamos Axios para las peticiones HTTP
 
-const archivosSeleccionados = ref<(File | undefined)[]>([]);
+// const archivosSeleccionados = ref<(File | undefined)[]>([]);
+const archivosSeleccionados = ref(
+  Array.from({ length: 7 }, () => ({
+    archivo: undefined as File | undefined,
+    cargado: false,
+  }))
+);
 const archivosCargados = ref(false);
 const respuestaBackend = ref<any>(null);
 const backendUrl = 'http://localhost:5000/analizar'; // Reemplaza con la URL de tu backend
+
+// const seleccionarArchivo = (index: number) => {
+//   const input = document.createElement('input');
+//   input.type = 'file';
+//   input.accept = 'application/pdf';
+//   input.multiple = false; // Permitir seleccionar un archivo por botón
+//   input.onchange = (event: Event) => {
+//     const files = (event.target as HTMLInputElement).files;
+//     if (files && files.length > 0) {
+//       // Asociar el archivo al botón correspondiente (podría ser más complejo si se permite reordenar)
+//       if (!archivosSeleccionados.value[index]) {
+//         archivosSeleccionados.value[index] = files[0];
+//         // Verificar si todos los botones tienen un archivo (opcional)
+//         archivosCargados.value = archivosSeleccionados.value.some(file => file !== undefined);
+//       } else {
+//         archivosSeleccionados.value[index] = files[0]; // Reemplazar si se selecciona otro archivo
+//       }
+//     }
+//   };
+//   input.click();
+// };
 
 const seleccionarArchivo = (index: number) => {
   const input = document.createElement('input');
   input.type = 'file';
   input.accept = 'application/pdf';
-  input.multiple = false; // Permitir seleccionar un archivo por botón
+  input.multiple = false;
   input.onchange = (event: Event) => {
     const files = (event.target as HTMLInputElement).files;
     if (files && files.length > 0) {
-      // Asociar el archivo al botón correspondiente (podría ser más complejo si se permite reordenar)
-      if (!archivosSeleccionados.value[index]) {
-        archivosSeleccionados.value[index] = files[0];
-        // Verificar si todos los botones tienen un archivo (opcional)
-        archivosCargados.value = archivosSeleccionados.value.some(file => file !== undefined);
-      } else {
-        archivosSeleccionados.value[index] = files[0]; // Reemplazar si se selecciona otro archivo
-      }
+      archivosSeleccionados.value[index].archivo = files[0];
+      archivosSeleccionados.value[index].cargado = true;
     }
   };
   input.click();
@@ -70,21 +102,26 @@ const seleccionarArchivo = (index: number) => {
 const enviarAnalisis = async (pregunta: string) => {
   if (archivosSeleccionados.value.length > 0 && pregunta.trim() !== '') {
     const formData = new FormData();
-    archivosSeleccionados.value.forEach((archivo: File | undefined) => {
-      if (archivo) {
-        formData.append('archivos', archivo);
+    archivosSeleccionados.value.forEach(item => {
+      // if (archivo) {
+      //   formData.append('archivos', archivo);
+      // }
+      if (item.archivo) {
+         formData.append('archivos', item.archivo);
       }
     });
     formData.append('pregunta', pregunta);
 
     try {
       const response = await axios.post(backendUrl, formData, {
+        
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
       respuestaBackend.value = response.data;
-      console.log('Respuesta del backend:', response.data);
+      console.log('Respuesta del backend:', response.data)
+      console.log('Respuesta del backend:', formData)
     } catch (error: any) {
       console.error('Error al enviar los archivos y la pregunta:', error.message);
       alert('Error al procesar la solicitud. Por favor, inténtelo de nuevo.');

@@ -2,8 +2,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
+ 
 @import './base.css';
+
 
 #app {
   max-width: 1280px;
@@ -38,7 +39,12 @@ a,
     padding: 0 2rem;
   }
 }
-
+/*
 body {
   @apply font-[Montserrat];
 }
+*/
+html,
+body {
+  position: relative;
+} 
