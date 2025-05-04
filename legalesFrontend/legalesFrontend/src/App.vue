@@ -124,6 +124,7 @@ const resaltarPalabrasClave = (texto: string): string => {
     }
   }
 
+  
   const topPalabras = Object.entries(frecuencia)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5)
