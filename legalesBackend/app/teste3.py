@@ -3,8 +3,7 @@ import base64
 from openai import AzureOpenAI  
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider  
         
-endpoint = os.getenv("ENDPOINT_URL", "https://ansv-ai-testeo.openai.azure.com/")  
-deployment = os.getenv("DEPLOYMENT_NAME", "ansv2-gpt35")  
+
       
 # Inicialización del cliente del Azure OpenAI Service con autenticación de id. de Entra
 token_provider = get_bearer_token_provider(  
