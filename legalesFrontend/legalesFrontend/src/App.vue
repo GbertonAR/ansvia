@@ -65,7 +65,8 @@
             <p class="text-blue-100 text-sm mb-2">
               <strong>Archivo:</strong> {{ archivosSeleccionados[0]?.name || 'Sin nombre' }}
             </p>
-            <div v-html="resaltarPalabrasClave(respuestaBackend.answer)" class="text-white space-y-2"></div>
+            <!-- <div v-html="resaltarPalabrasClave(respuestaBackend.answer)" class="text-white space-y-2"></div> -->
+            <div v-html="resaltarYFormatearTexto(respuestaBackend.answer)" class="text-white"></div>
           </div>
         </div>
 
@@ -122,6 +123,40 @@ const enviarAnalisis = async (pregunta: string) => {
     console.error('Error al analizar:', err.message)
   }
 }
+
+const resaltarYFormatearTexto = (texto: string): string => {
+  if (!texto) return '';
+
+  const palabras = texto
+    .toLowerCase()
+    .replace(/[.,;()¿?¡!"“”]/g, '')
+    .split(/\s+/)
+
+  const frecuencia: Record<string, number> = {};
+  for (const palabra of palabras) {
+    if (palabra.length > 5) {
+      frecuencia[palabra] = (frecuencia[palabra] || 0) + 1;
+    }
+  }
+
+  const topPalabras = Object.entries(frecuencia)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([palabra]) => palabra);
+
+  const regex = new RegExp(`\\b(${topPalabras.join('|')})\\b`, 'gi');
+
+  // Separar en párrafos por doble salto o salto simple
+  const parrafos = texto.split(/\n{1,2}/).filter(p => p.trim() !== '');
+
+  // Convertir cada párrafo a HTML
+  return parrafos.map(p => {
+    const textoResaltado = p.replace(regex, '<span class="text-yellow-400 font-semibold">$1</span>');
+    return `<p class="mb-4">${textoResaltado}</p>`;
+  }).join('');
+}
+
+
 
 const resaltarPalabrasClave = (texto: string): string => {
   const palabras = texto
