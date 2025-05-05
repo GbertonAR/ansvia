@@ -75,14 +75,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+// import { ref, computed } from 'vue'
+import { ref, computed, nextTick } from 'vue'; // Importa nextTick aquí
 import QuestionForm from './components/QuestionForm.vue'
 import axios from 'axios'
 
 const archivosSeleccionados = ref<(File | undefined)[]>([])
 const respuestaBackend = ref<any>(null)
 const mostrarResultado = ref(true)
-const backendUrl = 'http://localhost:5000/ask'
+// const backendUrl = 'http://localhost:5000/ask'
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
+if (import.meta.env.MODE === 'development') {
+  console.log("Modo desarrollo");
+} else {
+  console.log("Modo producción");
+}
+
 
 const seleccionarArchivo = (index: number) => {
   const input = document.createElement('input')
@@ -106,6 +114,10 @@ const enviarAnalisis = async (pregunta: string) => {
     const res = await axios.post(backendUrl, formData)
     console.log('Respuesta del backend:', res.data);  // Añade esto para ver qué está devolviendo el backend
     respuestaBackend.value = res.data
+    // Acceder a los párrafos DESPUÉS de que Vue actualice el DOM
+    await nextTick();
+    const parrafos = document.querySelectorAll('.text-white.space-y-2 p'); // Selector específico
+    parrafos.forEach(p => console.log(p.textContent));
   } catch (err: any) {
     console.error('Error al analizar:', err.message)
   }
@@ -124,7 +136,7 @@ const resaltarPalabrasClave = (texto: string): string => {
     }
   }
 
-  
+
   const topPalabras = Object.entries(frecuencia)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5)

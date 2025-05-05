@@ -124,6 +124,10 @@ def ask():
     except Exception as e:
         print("Error general:", e)
         return jsonify({"error": str(e)}), 500
+    
+@app.route('/')
+def index():
+    return '✅ BOTLegales está corriendo', 200    
 
 # === Iniciar servidor ===
 if __name__ == "__main__":
