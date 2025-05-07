@@ -49,6 +49,16 @@
           <QuestionForm @enviar-consulta="enviarAnalisis" />
         </div>
 
+        <!-- Barra de progreso animada y curva -->
+        <div v-if="cargando" class="relative h-3 overflow-hidden">
+          <div class="absolute inset-0 bg-gradient-to-r from-cyan-300 via-white to-cyan-300 animate-loading-bar rounded-b-full"></div>
+        </div>
+
+        <!-- BARRA DE PROGRESO -->
+        <div v-if="cargando" class="progress-bar fixed top-0 left-0 w-full z-50">
+          <div class="progress-fill"></div>
+        </div>
+
         <div v-if="respuestaBackend" class="bg-blue-700 p-6 rounded-lg shadow-md">
           <div class="flex justify-between items-center mb-2">
             <h2 class="text-2xl font-semibold">📄 Resultado</h2>
@@ -84,14 +94,23 @@ import axios from 'axios'
 const archivosSeleccionados = ref<(File | undefined)[]>([])
 const respuestaBackend = ref<any>(null)
 const mostrarResultado = ref(true)
-// const backendUrl = 'http://localhost:5000/ask'
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
+const cargando = ref(false)  // NUEVO: estado para mostrar la barra de carga
+// // const backendUrl = 'http://localhost:5000/ask'
+// let backendUrl = import.meta.env.VITE_BACKEND_URL;
+// if (import.meta.env.MODE === 'development') {
+//   console.log("Modo desarrollo");
+//   const backendUrl = 'http://localhost:5000/ask';
+// } else {
+//   console.log("Modo producción");
+// }
+let backendUrl = import.meta.env.VITE_BACKEND_URL;
+
 if (import.meta.env.MODE === 'development') {
   console.log("Modo desarrollo");
+  backendUrl = 'http://localhost:5000/ask';
 } else {
   console.log("Modo producción");
 }
-
 
 const seleccionarArchivo = (index: number) => {
   const input = document.createElement('input')
@@ -105,6 +124,7 @@ const seleccionarArchivo = (index: number) => {
 }
 
 const enviarAnalisis = async (pregunta: string) => {
+  cargando.value = true  // INICIA la barra
   const formData = new FormData()
   archivosSeleccionados.value.forEach((archivo) => {
     if (archivo) formData.append('archivos', archivo)
@@ -113,14 +133,12 @@ const enviarAnalisis = async (pregunta: string) => {
 
   try {
     const res = await axios.post(backendUrl, formData)
-    console.log('Respuesta del backend:', res.data);  // Añade esto para ver qué está devolviendo el backend
     respuestaBackend.value = res.data
-    // Acceder a los párrafos DESPUÉS de que Vue actualice el DOM
-    await nextTick();
-    const parrafos = document.querySelectorAll('.text-white.space-y-2 p'); // Selector específico
-    parrafos.forEach(p => console.log(p.textContent));
+    await nextTick()
   } catch (err: any) {
     console.error('Error al analizar:', err.message)
+  } finally {
+    cargando.value = false  // TERMINA la barra
   }
 }
 

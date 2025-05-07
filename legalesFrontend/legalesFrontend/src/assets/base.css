@@ -135,3 +135,46 @@ body {
 .boton-azul:hover {
   background-color:var(--vt-c-blue-soft); /* púrpura más oscuro */
 }
+
+@keyframes loading-bar {
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-loading-bar {
+  animation: loading-bar 2s ease-in-out infinite;
+}
+
+.progress-bar {
+  height: 6px;
+  backdrop-filter: blur(6px);
+  background-color: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.progress-fill {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, #a2d9ff, #d0f0ff, #ffffff);
+  border-radius: 0 8px 8px 0;
+  animation: progressLoading 2s linear infinite;
+}
+
+@keyframes progressLoading {
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
