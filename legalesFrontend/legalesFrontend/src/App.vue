@@ -13,8 +13,12 @@
 
       <!-- MENÚ HORIZONTAL -->
       <nav class="flex justify-center bg-blue-700 py-3 space-x-4 shadow">
-        <button class="px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded text-white">Opción 1</button>
-        <button class="px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded text-white">Opción 2</button>
+        <button @click="opcionSeleccionada = 'documentos'" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded text-white">
+          Documentos
+        </button>
+        <button @click="opcionSeleccionada = 'audio'" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded text-white">
+          Audio a Texto
+        </button>
         <button class="px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded text-white">Opción 3</button>
         <button class="px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded text-white">Opción 4</button>
       </nav>
@@ -38,6 +42,18 @@
 
         <!-- AREA DE PREGUNTA + RESULTADO -->
         <main class="flex-1 p-10 overflow-y-auto">
+
+          <!-- DOCUMENTOS -->
+          <template v-if="opcionSeleccionada === 'documentos'">
+            <!-- Tu contenido actual de documentos permanece aquí -->
+            
+          </template>
+
+          <!-- AUDIO A TEXTO -->
+          <template v-else-if="opcionSeleccionada === 'audio'">
+            <AudioToText />
+          </template>
+          
           <div v-if="archivosSeleccionados.length > 0" class="mb-8">
             <h2 class="text-lg font-semibold mb-2">Archivos seleccionados:</h2>
             <ul class="list-disc pl-5 space-y-1 text-blue-100 text-sm">
@@ -95,12 +111,14 @@ import QuestionForm from './components/QuestionForm.vue'
 import axios from 'axios'
 import FooterComponent from './components/FooterComponent.vue'
 import LoginPage from './components/loginPage.vue'
+import AudioToText from './components/AudioToText.vue'
 
 const archivosSeleccionados = ref<(File | undefined)[]>([])
 const respuestaBackend = ref<any>(null)
 const mostrarResultado = ref(true)
 const cargando = ref(false)  // NUEVO: estado para mostrar la barra de carga
 const autenticado = ref(false)
+const opcionSeleccionada = ref<'documentos' | 'audio'>('documentos')
 // // const backendUrl = 'http://localhost:5000/ask'
 // let backendUrl = import.meta.env.VITE_BACKEND_URL;
 // if (import.meta.env.MODE === 'development') {
